@@ -11,7 +11,7 @@ import { notFound, errorHandler } from './Middleware/errorMiddleware.js';
 import userRoutes from './Routes/userRoute.js';
 
 const port = process.env.PORT || 5000;
-
+console.log("hey")
 connectDB();
 
 const app = express();
