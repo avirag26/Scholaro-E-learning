@@ -1,30 +1,18 @@
+
 import React from "react";
-export default function Footer() {
+export default function FeatureTabs() {
+  const tabs = [
+    { label: "Web Development", color: "bg-cyan-100 text-cyan-600" },
+    { label: "User Experience", color: "bg-fuchsia-100 text-fuchsia-600" },
+    { label: "Marketing", color: "bg-yellow-100 text-yellow-600" }
+  ];
   return (
-    <footer className="bg-gray-900 text-white py-12 mt-12">
-      <div className="container mx-auto px-4 grid md:grid-cols-4 gap-8">
-        <div>
-          <div className="font-bold text-xl mb-2">EduSphere</div>
-          <div className="text-gray-400 text-sm">Empowering learners worldwide with quality education.</div>
+    <div className="flex gap-4 justify-center py-6 bg-gray-900">
+      {tabs.map(tab => (
+        <div key={tab.label} className={`px-5 py-2 rounded-md font-bold ${tab.color}`}>
+          {tab.label}
         </div>
-        <div>
-          <div className="font-semibold mb-1">Quick Links</div>
-          {["Home", "Features", "Benefits", "Courses"].map(link => (
-            <a key={link} href="#" className="block text-gray-400 hover:text-cyan-400">{link}</a>
-          ))}
-        </div>
-        <div>
-          <div className="font-semibold mb-1">Support</div>
-          {["Help Center", "Terms of Service", "Privacy Policy", "Contact Us"].map(link => (
-            <a key={link} href="#" className="block text-gray-400 hover:text-cyan-400">{link}</a>
-          ))}
-        </div>
-        <div>
-          <div className="font-semibold mb-1">Contact</div>
-          <div className="text-gray-400 text-sm">info@edusphere.com<br /> (123) 456-7890<br /> 123 Education St.</div>
-        </div>
-      </div>
-      <div className="text-center text-xs text-gray-600 mt-8">© 2025 EduSphere. All rights reserved.</div>
-    </footer>
+      ))}
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import {useNavigate ,Link} from 'react-router-dom'
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 import FeatureTabs from "../ui/FeatureTabs";
@@ -31,6 +32,7 @@ const instructors = [
 ];
 
 export default function LandingPage() {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
@@ -45,11 +47,18 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex items-center h-16 px-4">
           <div className="font-bold text-2xl text-cyan-600">EduSphere</div>
           <nav className="ml-auto hidden md:flex gap-6">
-            {["Home", "About", "Courses", "Contact"].map(link => (
-              <a key={link} href="#" className="font-medium hover:text-cyan-600">{link}</a>
+            {[
+              {name:"Home", path:"/"},
+              {name:"Courses", path:"/notfound"},
+              {name:"About", path:"/notfound"},
+              {name:"Contact", path:"/notfound"},
+            ].map((link) => (
+              <Link key={link.name} to={link.path} className="text-gray-700 hover:text-cyan-600 transition">
+                {link.name}
+              </Link>
             ))}
           </nav>
-          <Button className="ml-6 hidden md:inline-flex">Login</Button>
+          <Button className="ml-6 hidden md:inline-flex" onClick={()=>navigate('user/Login')}>Login</Button>
         </div>
       </header>
       <main className="flex-1">
@@ -63,8 +72,8 @@ export default function LandingPage() {
               Energize and motivate your students with personalized content as they progress on their learning journey.
             </p>
             <div className="flex gap-4">
-              <Button variant="outline">Register</Button>
-              <Button>Login</Button>
+              <Button variant="outline" onClick={()=>navigate('/user/register')}>Register</Button>
+              <Button  onClick={()=>navigate('user/login')}>Login</Button>
             </div>
           </div>
           <div className="relative">
