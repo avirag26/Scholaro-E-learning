@@ -6,8 +6,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Banner from "../../assets/Register.jpg";
 import DotDotDotSpinner from "../../ui/Spinner/DotDotDotSpinner";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../Context/AuthContext";
 import { axiosPublic } from "../../api/axios";
+import OtpModal from "../../ui/OTP";
 
 export default function Register() {
     const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { setAuth } = useAuth();
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -134,16 +134,10 @@ export default function Register() {
       const { confirmPassword, ...registerData } = formData;
       const response = await axiosPublic.post("/api/users", registerData);
 
-      const { accessToken, ...user } = response.data;
+      toast.success(response.data.message);
+      // On success, open the OTP modal
+      setIsOtpModalOpen(true);
 
-      // Set auth state globally
-      setAuth({ user, accessToken });
-
-      toast.success("Registration successful! Welcome.");
-      localStorage.removeItem("registerFormData");
-
-      // Navigate to a protected route after successful registration
-      navigate("/user/home"); // Or any other protected route
     } catch (err) {
       if (!err?.response) {
         toast.error("No Server Response");
@@ -157,6 +151,29 @@ export default function Register() {
       setIsSubmitting(false);
     }
   };
+
+  const handleVerifyOtp = async (otp) => {
+    setIsSubmitting(true);
+    try {
+      const response = await axiosPublic.post(`/api/users/verify-otp`, {
+        email: formData.email,
+        otp,
+      });
+      toast.success(response.data.message);
+      localStorage.setItem("authToken", response.data.accessToken);
+
+      // Clear the saved form data from localStorage after successful registration
+      localStorage.removeItem("registerFormData");
+
+      setIsOtpModalOpen(false);
+      navigate("/user/home");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "OTP verification failed.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
   return (
     <div className="min-h-screen flex relative">
@@ -368,6 +385,13 @@ export default function Register() {
           </form>
           <Toaster />
         </div>
+
+        <OtpModal
+          isOpen={isOtpModalOpen}
+          onClose={() => setIsOtpModalOpen(false)}
+          onVerify={handleVerifyOtp}
+          email={formData.email}
+        />
       </div>
     </div>
   );

@@ -87,7 +87,13 @@ const userSchema = new mongoose.Schema(
     },
     lastActive: { type: Date },
     lastLogin: { type: Date },
-    notifications: [notificationSchema]
+    notifications: [notificationSchema],
+    otp: {
+      type: String,
+    },
+    otpExpiry: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

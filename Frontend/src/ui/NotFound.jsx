@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import {  useNavigate } from 'react-router-dom'
+
 
 const emojis = ['📚', '🎓', '✏️', '🖥️', '🧠']
 
 export default function NotFoundPage() {
   const [isDay, setIsDay] = useState(true)
-
+const navigate = useNavigate()
   useEffect(() => {
     const hour = new Date().getHours()
     setIsDay(hour >= 6 && hour < 18)
@@ -86,7 +88,7 @@ export default function NotFoundPage() {
         </motion.p>
 
         <motion.a
-          href="/"
+          onClick={()=>navigate('/user/home')}
           className={`px-8 py-4 rounded-full font-semibold shadow-lg ring-2 ring-sky-400 transition-transform text-lg
             ${isDay ? 'bg-sky-600 hover:bg-sky-700 text-white' : 'bg-white/80 hover:bg-white/90 text-sky-800'}
             `}

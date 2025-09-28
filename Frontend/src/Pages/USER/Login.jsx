@@ -138,14 +138,14 @@ export default function Login() {
             {/* Username Input */}
             <div>
               <label
-                htmlFor="username"
+                htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
                 User name
               </label>
               <input
-                type="text"
-                id="username"
+                type="email"
+                id="email"
                 name="email"
                 value={email}
                 onChange={handleEmailChange}

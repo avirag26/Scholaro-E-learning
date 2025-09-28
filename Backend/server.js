@@ -1,24 +1,24 @@
 import express from 'express';
 import dotenv from 'dotenv';
-dotenv.config(); // Move this to the top
-
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './Middleware/errorMiddleware.js';
 
+// This must be the very first thing to run
+dotenv.config();
+
 // Import routes
 import userRoutes from './Routes/userRoute.js';
 
 const port = process.env.PORT || 5000;
-console.log("hey")
 connectDB();
 
 const app = express();
 
 // CORS Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Your frontend URL
+  origin: 'http://localhost:5176', // Your frontend URL
   credentials: true
 }));
 
@@ -39,4 +39,4 @@ app.use('/api/users', userRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+app.listen(port, () => console.log(`✅ Server running on http://localhost:${port}`));
