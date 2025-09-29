@@ -4,8 +4,10 @@ import { Menu, Search, X, ShoppingCart, Bell, MoreVertical } from "lucide-react"
 import Button from "../../../ui/Button";
 import ThemeToggle from "../../../ui/themeToggle";
 import avatar from "../../../assets/avt.webp";
+import { useNavigate } from "react-router-dom";
 
 export default function Header({ user, theme, onToggle, onMenuClick }) {
+  const navigate = useNavigate();
   const cartItemCount = 0;
   const notificationCount = 0;
 
@@ -120,6 +122,7 @@ export default function Header({ user, theme, onToggle, onMenuClick }) {
             src={user?.profileImage || avatar}
             alt="Profile"
             className="h-8 w-8 rounded-full object-cover"
+            onClick={() => navigate("/user/profiles")}
           />
           <ThemeToggle theme={theme} onToggle={onToggle} />
           <div className="relative lg:hidden">

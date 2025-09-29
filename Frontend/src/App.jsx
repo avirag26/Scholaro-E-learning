@@ -4,9 +4,10 @@ import LandingPage from './Landing/LandingPage';
 // import UserRoutes from './components/UserRoutes';
 // import AdminRoutes from './components/AdminRoutes';
 import NotFoundPage from './ui/NotFound';
-
+import TutorRoutes from "../Routes/tutorRoutes";
 
 import UserRoutes from "../Routes/userRoutes";
+import PublicRoute from './utils/PublicRoute';
 
 function App() {
   return (
@@ -15,16 +16,13 @@ function App() {
     
    <Router>
       <Routes>
-        <Route path="/" element={
-          // <PublicRoutes>
-          //      <LandingPage />
-          // </PublicRoutes>
-          <LandingPage />
-         
-          } />
+        <Route element={<PublicRoute />}>
+          <Route path="/" element={<LandingPage />} />
+        </Route>
         {/* <Route path="/user/*" element={<UserRoutes />} />
         <Route path="/admin/*" element={<AdminRoutes />} />  */}
         <Route path="/user/*" element={<UserRoutes />} />
+        <Route path="/tutor/*" element={<TutorRoutes />} />
          <Route path="*" element={<NotFoundPage />} />
         
       </Routes>

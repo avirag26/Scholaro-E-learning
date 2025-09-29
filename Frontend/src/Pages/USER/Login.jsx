@@ -74,6 +74,9 @@ export default function Login() {
       // Set the user and accessToken in the global auth state
       setAuth({ user, accessToken });
 
+      // Persist the token in localStorage
+      localStorage.setItem("authToken", accessToken);
+
       // Clear form fields
       setEmail("");
       setPassword("");

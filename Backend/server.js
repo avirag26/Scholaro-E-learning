@@ -10,6 +10,7 @@ dotenv.config();
 
 // Import routes
 import userRoutes from './Routes/userRoute.js';
+import tutorRoutes from './Routes/tutorRoute.js';
 
 const port = process.env.PORT || 5000;
 connectDB();
@@ -18,7 +19,7 @@ const app = express();
 
 // CORS Middleware
 app.use(cors({
-  origin: 'http://localhost:5176', // Your frontend URL
+  origin: 'http://localhost:5173', // Your frontend URL
   credentials: true
 }));
 
@@ -35,7 +36,7 @@ app.get('/', (req, res) => {
 
 // Use routes
 app.use('/api/users', userRoutes);
-
+app.use('/api/tutors', tutorRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

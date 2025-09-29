@@ -12,7 +12,8 @@ import Card from "../../ui/Card";
 
 import avatar from "../../assets/avt.webp";
 import Header from "./Common/Header"; // Using separate Header
-import Footer from "./Common/Footer"; // Using separate Footer
+ // Using separate Footer
+import Footer from '../TUTOR/Common/Footer' 
 import { MdFavoriteBorder } from "react-icons/md";
 
 export default function UserHomePage() {

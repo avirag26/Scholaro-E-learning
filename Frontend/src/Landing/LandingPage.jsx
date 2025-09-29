@@ -9,7 +9,7 @@ import CategoryCards from "../ui/CategoryCards";
 import CourseSections from "../ui/CourseSections";
 import Testimonials from "../ui/Testimonials";
 import TeamSection from "../ui/TeamSection";
-import Footer from '../Pages/USER/Common/Footer'
+import Footer from '../Pages/TUTOR/Common/Footer'
 import LoadingPage from "../ui/LoadingPage";
 import HeroImg from "../assets/banner.png";
 import OfficeImg from "../assets/Office.svg";
@@ -17,6 +17,7 @@ import AboutImg from "../assets/grapics.jpg";
 import USER1 from "../assets/User1.jpg";
 import { MdFavoriteBorder } from "react-icons/md";
 import { Star } from "lucide-react";
+
 
 
 // Demo data:
@@ -93,12 +94,33 @@ export default function LandingPage() {
             <img src={HeroImg} className="rounded-3xl w-full max-w-lg mx-auto" alt="Hero" />
           </div>
         </section>
+         <section className="max-w-3xl mx-auto my-12 px-6 py-10 bg-cyan-50 rounded-3xl shadow-lg flex flex-col items-center">
+  <img
+    src={OfficeImg}  // Replace with your logo import if different
+    alt="Tutor Logo"
+    className="w-24 h-24 mb-4 rounded-full border-4 border-cyan-600 shadow"
+  />
+  <h2 className="text-3xl font-extrabold text-cyan-700 mb-4 text-center">
+    Become a Tutor on EduSphere
+  </h2>
+  <p className="text-lg text-gray-700 mb-8 text-center">
+    Share your knowledge, inspire thousands of learners, and grow your career as a top educator.
+  </p>
+  <Button
+    className="bg-cyan-600 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow hover:bg-cyan-700 transition"
+    onClick={() => navigate('/tutor/register')}
+  >
+    Sign Up as a Tutor
+  </Button>
+</section>
         {/* Feature Tabs */}
         <FeatureTabs />
         {/* About */}
         <AboutSection officeImg={OfficeImg} aboutImg={AboutImg} />
         {/* Stats */}
         <StatsSection />
+
+
 
         {/* Categories */}
         <CategoryCards />
