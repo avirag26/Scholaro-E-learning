@@ -8,9 +8,12 @@ import DotDotDotSpinner from "../../ui/Spinner/DotDotDotSpinner";
 import { useNavigate } from "react-router-dom";
 import { axiosPublic } from "../../api/axios";
 import OtpModal from "../../ui/OTP";
+import { GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../../Context/AuthContext.jsx";
 
 export default function Register() {
     const navigate = useNavigate();
+    const { setAuth } = useAuth();
    
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -172,6 +175,38 @@ export default function Register() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setIsSubmitting(true);
+      const response = await axiosPublic.post("/api/users/google-auth", {
+        credential: credentialResponse.credential
+      });
+
+      const { accessToken, ...user } = response.data;
+
+      // Set the user and accessToken in the global auth state
+      setAuth({ user, accessToken });
+
+      // Persist the token in localStorage
+      localStorage.setItem("authToken", accessToken);
+
+      // Clear the saved form data from localStorage
+      localStorage.removeItem("registerFormData");
+
+      toast.success(response.data.message || "Google registration successful!");
+      navigate("/user/home");
+    } catch (err) {
+      console.error('Google registration error:', err);
+      toast.error(err.response?.data?.message || "Google registration failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google registration failed. Please try again.");
   };
 
 
@@ -381,6 +416,29 @@ export default function Register() {
               >
                 {isSubmitting ? <DotDotDotSpinner /> : "Register"}
               </button>
+            </div>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or register with</span>
+              </div>
+            </div>
+
+            {/* Google Registration Button */}
+            <div className="mt-6">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                theme="outline"
+                size="large"
+                width="100%"
+                text="signup_with"
+                shape="rectangular"
+              />
             </div>
           </form>
           <Toaster />

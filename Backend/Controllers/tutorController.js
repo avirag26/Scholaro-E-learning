@@ -3,9 +3,11 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/generateToken.js";
-import { sendOtpEmail } from "../utils/emailService.js";
+import { sendOtpEmail, sendPasswordResetEmail } from "../utils/emailService.js";
 import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
+import { OAuth2Client } from 'google-auth-library';
 
 /**
  * @desc    Register a new tutor
@@ -193,4 +195,191 @@ const resendTutorOtp = async (req, res) => {
   }
 };
 
-export { registerTutor, verifyTutorOtp, loginTutor, resendTutorOtp };
+/**
+ * @desc    Forgot password
+ * @route   POST /api/tutors/forgot-password
+ * @access  Public
+ */
+const forgotPassword = async (req, res) => {
+  try {
+    const tutor = await Tutor.findOne({ email: req.body.email });
+
+    if (!tutor) {
+      // Send a generic success message to prevent email enumeration
+      return res.status(200).json({ message: "If a user with that email exists, a password reset link has been sent." });
+    }
+
+    // 1) Generate a random reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // 2) Hash the token and save it to the user document
+    tutor.passwordResetToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    // 3) Set an expiry for the token (10 minutes)
+    tutor.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+    await tutor.save({ validateBeforeSave: false });
+
+    // 4) Send the token to the tutor's email
+    await sendPasswordResetEmail(tutor.email, resetToken, 'tutor');
+
+    res.status(200).json({ message: "Password reset token sent to email." });
+  } catch (error) {
+    console.error("Forgot Password Error:", error);
+    // In case of error, invalidate the token
+    if (req.body.email) {
+      const tutorToUpdate = await Tutor.findOne({ email: req.body.email });
+      if (tutorToUpdate) {
+        tutorToUpdate.passwordResetToken = undefined;
+        tutorToUpdate.passwordResetExpires = undefined;
+        await tutorToUpdate.save({ validateBeforeSave: false });
+      }
+    }
+    res.status(500).json({ message: "There was an error sending the email. Try again later." });
+  }
+};
+
+/**
+ * @desc    Reset password
+ * @route   PATCH /api/tutors/reset-password/:token
+ * @access  Public
+ */
+const resetPassword = async (req, res) => {
+    // 1) Get user based on the token
+    const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+    const tutor = await Tutor.findOne({ passwordResetToken: hashedToken, passwordResetExpires: { $gt: Date.now() } });
+
+    // 2) If token has not expired, and there is a user, set the new password
+    if (!tutor) {
+        return res.status(400).json({ message: 'Token is invalid or has expired' });
+    }
+    const salt = await bcrypt.genSalt(10);
+    tutor.password = await bcrypt.hash(req.body.password, salt);
+    tutor.passwordResetToken = undefined;
+    tutor.passwordResetExpires = undefined;
+    await tutor.save();
+
+    res.status(200).json({ message: 'Password reset successful.' });
+};
+
+/**
+ * @desc    Google OAuth Login/Register for Tutors
+ * @route   POST /api/tutors/google-auth
+ * @access  Public
+ */
+const googleAuthTutor = async (req, res) => {
+  try {
+    const { credential } = req.body;
+    
+    if (!credential) {
+      return res.status(400).json({ message: 'Google credential is required' });
+    }
+
+    // Initialize Google OAuth client
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    
+    // Verify the Google token
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    console.log('Google OAuth payload for tutor:', { googleId, email, name });
+
+    // Check if tutor already exists
+    let tutor = await Tutor.findOne({ 
+      $or: [
+        { email: email },
+        { googleId: googleId }
+      ]
+    });
+
+    if (tutor) {
+      // Tutor exists - update Google ID if not set
+      if (!tutor.googleId) {
+        tutor.googleId = googleId;
+        tutor.profile_image = picture;
+        await tutor.save();
+      }
+      
+      // Generate tokens
+      const accessToken = generateAccessToken(tutor._id);
+      const refreshToken = generateRefreshToken(tutor._id);
+
+      // Save refresh token
+      tutor.refreshToken = refreshToken;
+      tutor.lastLogin = new Date();
+      await tutor.save();
+
+      // Set cookie
+      res.cookie('jwt_tutor', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV !== 'development',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      });
+
+      res.json({
+        _id: tutor._id,
+        name: tutor.full_name,
+        email: tutor.email,
+        profileImage: tutor.profile_image,
+        accessToken: accessToken,
+        message: 'Google login successful'
+      });
+    } else {
+      // Create new tutor
+      const newTutor = new Tutor({
+        full_name: name,
+        email: email,
+        googleId: googleId,
+        profile_image: picture,
+        tutor_id: uuidv4(),
+        is_verified: true, // Google tutors are automatically verified
+        // No password required for Google tutors
+      });
+
+      await newTutor.save();
+
+      // Generate tokens
+      const accessToken = generateAccessToken(newTutor._id);
+      const refreshToken = generateRefreshToken(newTutor._id);
+
+      // Save refresh token
+      newTutor.refreshToken = refreshToken;
+      newTutor.lastLogin = new Date();
+      await newTutor.save();
+
+      // Set cookie
+      res.cookie('jwt_tutor', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV !== 'development',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      });
+
+      res.status(201).json({
+        _id: newTutor._id,
+        name: newTutor.full_name,
+        email: newTutor.email,
+        profileImage: newTutor.profile_image,
+        accessToken: accessToken,
+        message: 'Google registration successful'
+      });
+    }
+  } catch (error) {
+    console.error('Google Auth Error for Tutor:', error);
+    if (error.message.includes('Token used too early')) {
+      return res.status(400).json({ message: 'Invalid Google token. Please try again.' });
+    }
+    res.status(500).json({ message: 'Google authentication failed' });
+  }
+};
+
+export { registerTutor, verifyTutorOtp, loginTutor, resendTutorOtp, forgotPassword, resetPassword, googleAuthTutor };

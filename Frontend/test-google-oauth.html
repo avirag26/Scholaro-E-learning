@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Google OAuth</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <h1>Test Google OAuth Configuration</h1>
+    
+    <div style="margin: 20px 0;">
+        <h3>Your Configuration:</h3>
+        <p><strong>Client ID:</strong> 654304508797-icfgppr98shf4ejm0c6febp7526kve1c.apps.googleusercontent.com</p>
+        <p><strong>Current URL:</strong> <span id="currentUrl"></span></p>
+    </div>
+
+    <div id="g_id_onload"
+         data-client_id="654304508797-icfgppr98shf4ejm0c6febp7526kve1c.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
+
+    <div style="margin-top: 20px;">
+        <h3>Troubleshooting Checklist:</h3>
+        <ul>
+            <li>✅ Client ID is set correctly</li>
+            <li>❓ Check if http://localhost:5174 is in Google Console authorized origins</li>
+            <li>❓ Check if http://localhost:5174 is in Google Console redirect URIs</li>
+            <li>❓ Make sure you're accessing this page from http://localhost:5174</li>
+        </ul>
+    </div>
+
+    <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0;"></div>
+
+    <script>
+        // Display current URL
+        document.getElementById('currentUrl').textContent = window.location.href;
+
+        function handleCredentialResponse(response) {
+            document.getElementById('result').innerHTML = `
+                <h3 style="color: green;">✅ Google OAuth Working!</h3>
+                <p>Received credential token (first 50 chars): ${response.credential.substring(0, 50)}...</p>
+                <p>You can now use Google OAuth in your React app!</p>
+            `;
+            console.log("Encoded JWT ID token: " + response.credential);
+        }
+
+        // Check if we're on the right URL
+        if (!window.location.href.startsWith('http://localhost:5174')) {
+            document.getElementById('result').innerHTML = `
+                <h3 style="color: red;">❌ Wrong URL</h3>
+                <p>You need to access this page from <strong>http://localhost:5174</strong></p>
+                <p>Current URL: ${window.location.href}</p>
+            `;
+        }
+    </script>
+</body>
+</html>

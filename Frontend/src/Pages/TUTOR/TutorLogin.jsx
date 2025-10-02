@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { axiosPublic } from "../../api/axios";
 import { toast, Toaster } from "sonner";
 import DotDotDotSpinner from "../../ui/Spinner/DotDotDotSpinner";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -65,6 +66,34 @@ export default function Login() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setIsSubmitting(true);
+      const response = await axiosPublic.post("/api/tutors/google-auth", {
+        credential: credentialResponse.credential
+      });
+
+      localStorage.setItem("tutorAuthToken", response.data.accessToken);
+      localStorage.setItem("tutorInfo", JSON.stringify({ 
+        name: response.data.name, 
+        email: response.data.email,
+        profileImage: response.data.profileImage 
+      }));
+
+      toast.success(response.data.message || "Google login successful!");
+      navigate("/tutor/home");
+    } catch (err) {
+      console.error('Google login error:', err);
+      toast.error(err.response?.data?.message || "Google login failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google login failed. Please try again.");
   };
 
   return (
@@ -182,13 +211,9 @@ export default function Login() {
                 />
                 <span className="text-sm text-sky-700">Remember me</span>
               </label>
-              <a
-                href="#"
-                className="text-sm text-sky-700 hover:text-sky-500"
-                onClick={(e) => e.preventDefault()}
-              >
+              <Link to="/tutor/forgot-password" className="text-sm text-sky-700 hover:text-sky-500">
                 Forgot Password?
-              </a>
+              </Link>
             </div>
 
             {/* Submit Button */}
@@ -212,13 +237,15 @@ export default function Login() {
 
             {/* Google Login Button */}
             <div className="mt-6">
-              {/* Placeholder for Google login UI */}
-              <button
-                className="w-full py-3 border border-sky-500 rounded-lg text-sky-500 hover:bg-sky-100 transition"
-                disabled
-              >
-                Google Login (UI Only)
-              </button>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                theme="outline"
+                size="large"
+                width="100%"
+                text="signin_with"
+                shape="rectangular"
+              />
             </div>
 
             {/* Sign Up Link */}

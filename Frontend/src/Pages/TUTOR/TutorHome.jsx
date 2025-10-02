@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, } from "recharts";
 import { FaPlus, FaUser, FaBook, FaChartBar, FaComments, FaSignOutAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -71,70 +71,73 @@ export default function TutorDashboard() {
     }
   }, []);
 
-const handleLogout = () => {
-  Swal.fire({
-    title: "Are you sure?",
-    text: "You will be logged out of your account.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, logout!",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      localStorage.removeItem("tutorAuthToken");
-      localStorage.removeItem("tutorInfo");
-      
-      Swal.fire({
-        icon: "success",
-        title: "Logged out!",
-        text: "You have successfully logged out.",
-        timer: 1500,
-        showConfirmButton: false,
-      });
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out of your account.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, logout!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.removeItem("tutorAuthToken");
+        localStorage.removeItem("tutorInfo");
 
-      setTimeout(() => {
-        navigate("/tutor/login");
-      }, 1500);
-    }
-  });
-};
+        Swal.fire({
+          icon: "success",
+          title: "Logged out!",
+          text: "You have successfully logged out.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        setTimeout(() => {
+          navigate("/tutor/login");
+        }, 1500);
+      }
+    });
+  };
   return (
-    
+
     <div className="min-h-screen bg-[#f2fbf6] w-full flex flex-col">
-       <Header/>
+      <Header />
       {/* Header */}
-      
+
       {/* Main container */}
       <div className="flex flex-1 w-full">
         {/* Sidebar */}
         <aside className="w-64 bg-white mx-4 my-6 rounded-2xl shadow-md flex flex-col items-center py-8">
           <img src={profileImage} className="w-24 h-24 rounded-full shadow" alt="profile" />
-          <div className="mt-4 text-[#21adae] font-semibold text-lg">{tutorName}</div>
-          <button className="mt-2 px-4 py-1 bg-[#eafaf5] rounded-full text-[#1fbab8] text-sm border flex items-center gap-1 hover:bg-[#def6f0] transition">
+          <div className="mt-4 text-sky-500 font-semibold text-lg">{tutorName}</div>
+          <button className="mt-2 px-4 py-1 bg-sky-50 rounded-full text-sky-600 text-sm border flex items-center gap-1 hover:bg-sky-100 transition">
             Share Profile
           </button>
           <ul className="w-full mt-6">
-            <li className="flex items-center px-8 py-2 bg-[#21adae]/90 text-white rounded-l-full font-semibold mb-1">
+            <li className="flex items-center px-8 py-2 bg-sky-500 text-white rounded-l-full font-semibold mb-1">
               <FaChartBar className="mr-3" /> Dashboard
             </li>
-            <li className="flex items-center px-8 py-2 text-[#21adae] hover:bg-[#eafaf5] rounded-l-full cursor-pointer mb-1">
+            <li
+              onClick={() => navigate('/tutor/profile')}
+              className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer mb-1"
+            >
               <FaUser className="mr-3" /> Profile
             </li>
-            <li className="flex items-center px-8 py-2 text-[#21adae] hover:bg-[#eafaf5] rounded-l-full cursor-pointer mb-1">
+            <li className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer mb-1">
               <FaBook className="mr-3" /> Courses
             </li>
-            <li className="flex items-center px-8 py-2 text-[#21adae] hover:bg-[#eafaf5] rounded-l-full cursor-pointer mb-1">
+            <li className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer mb-1">
               <FaChartBar className="mr-3" /> Revenues
             </li>
-            <li className="flex items-center px-8 py-2 text-[#21adae] hover:bg-[#eafaf5] rounded-l-full cursor-pointer mb-1">
+            <li className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer mb-1">
               <FaComments className="mr-3" /> Chat & video
             </li>
-            <li className="flex items-center px-8 py-2 text-[#21adae] hover:bg-[#eafaf5] rounded-l-full cursor-pointer" onClick={handleLogout}>
+            <li className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer" onClick={handleLogout}>
               <FaSignOutAlt className="mr-3" /> LogOut
             </li>
           </ul>
-          <button className="mt-8 bg-[#1fbab8] text-white px-8 py-3 rounded-full flex items-center gap-2 text-lg font-semibold shadow hover:bg-[#169892] transition">
+          <button className="mt-8 bg-sky-500 text-white px-8 py-3 rounded-full flex items-center gap-2 text-lg font-semibold shadow hover:bg-sky-600 transition">
             <FaPlus /> Add New Course
           </button>
         </aside>
@@ -143,22 +146,22 @@ const handleLogout = () => {
           {/* Top Card */}
           <div className="rounded-2xl shadow-md px-8 py-6 bg-white border-4 border-[#b8eec4]/30">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-2xl font-bold text-[#088786]">Dashboard</div>
+              <div className="text-2xl font-bold text-sky-600">Dashboard</div>
               <div>
-                <button className="bg-[#1fbab8] text-white px-4 py-2 rounded mr-3 hover:bg-[#169892] transition">Download PDF</button>
-                <button className="bg-[#efefef] text-[#088786] px-4 py-2 rounded hover:bg-[#e4eaea] transition">Download Excel</button>
+                <button className="bg-sky-500 text-white px-4 py-2 rounded mr-3 hover:bg-sky-600 transition">Download PDF</button>
+                <button className="bg-[#efefef] text-sky-600 px-4 py-2 rounded hover:bg-[#e4eaea] transition">Download Excel</button>
               </div>
             </div>
             <div className="flex items-center mt-6 mb-4 gap-8">
-              <div className="flex flex-col items-center justify-center text-[#088786] text-lg font-semibold">
+              <div className="flex flex-col items-center justify-center text-sky-600 text-lg font-semibold">
                 <span className="text-2xl font-bold">1,674,767</span>
                 <span className="mt-1 text-[#666] font-normal text-base">Students</span>
               </div>
-              <div className="flex flex-col items-center justify-center text-[#088786] text-lg font-semibold">
+              <div className="flex flex-col items-center justify-center text-sky-600 text-lg font-semibold">
                 <span className="text-2xl font-bold">957</span>
                 <span className="mt-1 text-[#666] font-normal text-base">Total Courses</span>
               </div>
-              <div className="flex flex-col items-center justify-center text-[#088786] text-lg font-semibold">
+              <div className="flex flex-col items-center justify-center text-sky-600 text-lg font-semibold">
                 <span className="text-2xl font-bold">$7,461,767</span>
                 <span className="mt-1 text-[#666] font-normal text-base">Total Revenue</span>
               </div>
@@ -206,7 +209,7 @@ const handleLogout = () => {
                       <td>{course.notice}</td>
                       <td>
                         <span className={`px-3 py-1 rounded-full text-xs font-bold 
-                          ${course.status === "Published" ? "bg-[#d4f5ed] text-[#1fbab8]" : "bg-gray-200 text-gray-500"}`}>
+                          ${course.status === "Published" ? "bg-sky-50 text-sky-600" : "bg-gray-200 text-gray-500"}`}>
                           {course.status}
                         </span>
                       </td>

@@ -1,43 +1,45 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Bell, Edit, Save, X, Camera, Check, User, LogOut, BookOpen, Award, Settings, Users, ShoppingBag, Heart } from 'lucide-react';
+import { Search, Bell, Edit, Save, X, Camera, Check, User, LogOut } from 'lucide-react';
 import Button from "../../ui/Button";
 import Card from "../../ui/Card";
 
-export default function UserProfile() {
+export default function AdminProfile() {
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState(null);
+  const [adminInfo, setAdminInfo] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    role: '',
     phone: '',
-    bio: '',
-    interests: ''
+    department: '',
+    bio: ''
   });
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
-    const storedUserInfo = localStorage.getItem('userInfo');
-    const authToken = localStorage.getItem('authToken');
+    const storedAdminInfo = localStorage.getItem('adminInfo');
+    const authToken = localStorage.getItem('adminAuthToken');
     
     if (!authToken) {
-      navigate('/user/login');
+      navigate('/admin/login');
       return;
     }
     
-    if (storedUserInfo) {
-      const user = JSON.parse(storedUserInfo);
-      setUserInfo(user);
+    if (storedAdminInfo) {
+      const admin = JSON.parse(storedAdminInfo);
+      setAdminInfo(admin);
       setFormData({
-        name: user.name || user.full_name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        bio: user.bio || '',
-        interests: user.interests || ''
+        name: admin.name || admin.full_name || '',
+        email: admin.email || '',
+        role: admin.role || 'Admin',
+        phone: admin.phone || '',
+        department: admin.department || '',
+        bio: admin.bio || ''
       });
-      setImagePreview(user.profileImage);
+      setImagePreview(admin.profileImage);
     }
   }, [navigate]);
 
@@ -62,40 +64,41 @@ export default function UserProfile() {
   };
 
   const handleSave = () => {
-    const updatedUserInfo = {
-      ...userInfo,
+    const updatedAdminInfo = {
+      ...adminInfo,
       name: formData.name,
       full_name: formData.name,
       email: formData.email,
       phone: formData.phone,
+      department: formData.department,
       bio: formData.bio,
-      interests: formData.interests,
       profileImage: imagePreview
     };
-    localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
-    setUserInfo(updatedUserInfo);
+    localStorage.setItem('adminInfo', JSON.stringify(updatedAdminInfo));
+    setAdminInfo(updatedAdminInfo);
     setIsEditing(false);
-    alert('Profile updated successfully!');
+    alert('Admin profile updated successfully!');
   };
 
   const handleCancel = () => {
-    if (userInfo) {
+    if (adminInfo) {
       setFormData({
-        name: userInfo.name || userInfo.full_name || '',
-        email: userInfo.email || '',
-        phone: userInfo.phone || '',
-        bio: userInfo.bio || '',
-        interests: userInfo.interests || ''
+        name: adminInfo.name || adminInfo.full_name || '',
+        email: adminInfo.email || '',
+        role: adminInfo.role || 'Admin',
+        phone: adminInfo.phone || '',
+        department: adminInfo.department || '',
+        bio: adminInfo.bio || ''
       });
-      setImagePreview(userInfo.profileImage);
+      setImagePreview(adminInfo.profileImage);
     }
     setIsEditing(false);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userInfo');
-    navigate('/user/login');
+    localStorage.removeItem('adminAuthToken');
+    localStorage.removeItem('adminInfo');
+    navigate('/admin/login');
   };
 
   const renderField = (label, name, type = 'text', placeholder = '', disabled = false) => (
@@ -112,7 +115,7 @@ export default function UserProfile() {
               onChange={handleInputChange}
               placeholder={placeholder}
               rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
             />
           ) : (
             <input
@@ -121,7 +124,7 @@ export default function UserProfile() {
               value={formData[name]}
               onChange={handleInputChange}
               placeholder={placeholder}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
             />
           )
         ) : (
@@ -142,14 +145,14 @@ export default function UserProfile() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header - simple style like Admin */}
+      {/* Header - matching AdminDashboard */}
       <header className="bg-white shadow-sm border-b">
         <div className="flex items-center justify-between px-6 py-4">
           {/* Left side */}
           <div className="flex items-center space-x-8">
-            <h1 className="text-2xl font-bold text-blue-500">Scholaro Student</h1>
+            <h1 className="text-2xl font-bold text-sky-500">Scholaro</h1>
             <nav className="hidden md:flex space-x-6">
-              <a href="#" className="text-gray-600 hover:text-blue-500">Courses</a>
+              <a href="#" className="text-gray-600 hover:text-sky-500">Categories</a>
             </nav>
           </div>
 
@@ -159,20 +162,20 @@ export default function UserProfile() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search courses"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Search course"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
               />
             </div>
           </div>
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-600 hover:text-blue-500">
+            <button className="p-2 text-gray-600 hover:text-sky-500">
               <Bell className="w-5 h-5" />
             </button>
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">
-                {formData.name?.charAt(0) || 'U'}
+                {formData.name?.charAt(0) || 'A'}
               </span>
             </div>
           </div>
@@ -180,25 +183,25 @@ export default function UserProfile() {
       </header>
 
       <div className="flex">
-        {/* Sidebar - matching Admin/Tutor simple style */}
+        {/* Sidebar - matching AdminDashboard style exactly */}
         <aside className="w-64 bg-white shadow-sm min-h-screen">
           {/* Profile Section */}
           <div className="p-6 border-b">
             <div className="flex flex-col items-center">
-              <div className="relative w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mb-3">
+              <div className="relative w-20 h-20 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center mb-3">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
-                    alt="User Profile"
+                    alt="Admin Profile"
                     className="w-full h-full rounded-full object-cover"
                   />
                 ) : (
                   <span className="text-white text-2xl font-bold">
-                    {formData.name?.charAt(0) || 'U'}
+                    {formData.name?.charAt(0) || 'A'}
                   </span>
                 )}
                 {isEditing && (
-                  <label className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 cursor-pointer">
+                  <label className="absolute bottom-0 right-0 bg-sky-500 text-white p-2 rounded-full hover:bg-sky-600 cursor-pointer">
                     <Camera className="w-4 h-4" />
                     <input
                       type="file"
@@ -210,40 +213,47 @@ export default function UserProfile() {
                 )}
               </div>
               <h3 className="font-semibold text-gray-800 mb-1">
-                {formData.name || 'Student'}
+                {formData.name || 'ADMIN'}
               </h3>
-              <button className="text-blue-500 text-sm hover:underline">
+              <button className="text-sky-500 text-sm hover:underline">
                 Profile
               </button>
             </div>
           </div>
 
-          {/* Navigation - matching the image provided */}
+          {/* Navigation - matching AdminDashboard */}
           <nav className="p-4">
             <div className="space-y-2">
-              <button className="w-full text-left px-4 py-3 bg-blue-500 text-white rounded-lg font-medium flex items-center">
+              <button 
+                onClick={() => navigate('/admin/dashboard')}
+                className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              >
+                Dashboard
+              </button>
+              <button className="w-full text-left px-4 py-3 bg-sky-500 text-white rounded-lg font-medium flex items-center">
                 <User className="w-4 h-4 mr-3" />
                 Profile
               </button>
-              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center">
-                <BookOpen className="w-4 h-4 mr-3" />
-                My Courses
+              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                Category
               </button>
-              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center">
-                <Users className="w-4 h-4 mr-3" />
-                Teachers
+              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                Students
               </button>
-              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center">
-                <ShoppingBag className="w-4 h-4 mr-3" />
-                My Orders
+              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                Orders
               </button>
-              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center">
-                <Heart className="w-4 h-4 mr-3" />
-                Wishlist
+              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                Tutors
               </button>
-              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center">
-                <Award className="w-4 h-4 mr-3" />
-                Certificates
+              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                Coupon
+              </button>
+              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                Courses
+              </button>
+              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                Legal
               </button>
               <button
                 onClick={handleLogout}
@@ -268,7 +278,7 @@ export default function UserProfile() {
                     <>
                       <Button
                         onClick={handleSave}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-sm"
+                        className="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 text-sm"
                       >
                         <Save className="w-4 h-4 mr-2" />
                         Save
@@ -286,7 +296,7 @@ export default function UserProfile() {
                     <Button
                       onClick={() => setIsEditing(true)}
                       variant="outline"
-                      className="border-blue-500 text-blue-600 hover:bg-blue-50 px-4 py-2 text-sm"
+                      className="border-sky-500 text-sky-600 hover:bg-sky-50 px-4 py-2 text-sm"
                     >
                       <Edit className="w-4 h-4 mr-2" />
                       Edit
@@ -295,33 +305,34 @@ export default function UserProfile() {
                 </div>
               </div>
               <div className="space-y-6">
-                {renderField('Full Name', 'name', 'text', 'Enter your name')}
-                {renderField('Email', 'email', 'email', 'Enter your email')}
+                {renderField('Full Name', 'name', 'text', 'Enter admin name')}
+                {renderField('Email', 'email', 'email', 'Enter admin email')}
+                {renderField('Role', 'role', 'text', 'Admin role', true)}
                 {renderField('Phone', 'phone', 'tel', 'Enter phone number')}
-                {renderField('Bio', 'bio', 'textarea', 'Tell about yourself...')}
-                {renderField('Interests', 'interests', 'text', 'Your learning interests')}
+                {renderField('Department', 'department', 'text', 'Enter department')}
+                {renderField('Bio', 'bio', 'textarea', 'Admin bio...')}
               </div>
             </Card>
 
-            {/* User Stats */}
+            {/* Admin Stats */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Learning Progress</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">Admin Statistics</h3>
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">5</div>
-                  <div className="text-sm text-gray-600">Enrolled Courses</div>
+                  <div className="text-2xl font-bold text-blue-600">551</div>
+                  <div className="text-sm text-gray-600">Total Users</div>
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">3</div>
-                  <div className="text-sm text-gray-600">Completed</div>
+                  <div className="text-2xl font-bold text-green-600">23</div>
+                  <div className="text-sm text-gray-600">Active Courses</div>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">2</div>
-                  <div className="text-sm text-gray-600">Certificates</div>
+                  <div className="text-2xl font-bold text-purple-600">1.2K</div>
+                  <div className="text-sm text-gray-600">Total Tutors</div>
                 </div>
                 <div className="text-center p-4 bg-orange-50 rounded-lg">
-                  <div className="text-2xl font-bold text-orange-600">45h</div>
-                  <div className="text-sm text-gray-600">Study Time</div>
+                  <div className="text-2xl font-bold text-orange-600">$25K</div>
+                  <div className="text-sm text-gray-600">Revenue</div>
                 </div>
               </div>
 
@@ -329,22 +340,16 @@ export default function UserProfile() {
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-900">Quick Actions</h4>
                 <Button 
-                  onClick={() => navigate('/user/home')}
-                  className="w-full bg-blue-500 hover:bg-blue-600"
+                  onClick={() => navigate('/admin/dashboard')}
+                  className="w-full bg-sky-500 hover:bg-sky-600"
                 >
                   Go to Dashboard
                 </Button>
                 <Button 
                   variant="outline"
-                  className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+                  className="w-full border-sky-500 text-sky-600 hover:bg-sky-50"
                 >
-                  Browse Courses
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="w-full border-green-500 text-green-600 hover:bg-green-50"
-                >
-                  View Certificates
+                  View Reports
                 </Button>
               </div>
             </Card>

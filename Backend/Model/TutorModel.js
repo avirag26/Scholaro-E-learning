@@ -91,6 +91,12 @@ const tutorSchema = new mongoose.Schema(
     otpExpiry: {
       type: Date,
     },
+    passwordResetToken: {
+      type: String,
+    },
+    passwordResetExpires: {
+      type: Date,
+    },
     lastActive: { type: Date },
     lastLogin: { type: Date },
     notifications: [notificationSchema]  // Added notifications array

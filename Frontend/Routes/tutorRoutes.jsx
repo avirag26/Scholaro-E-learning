@@ -3,6 +3,9 @@ import NotFoundPage from "../src/ui/NotFound";
 import TutorRegister from "../src/Pages/TUTOR/TutorRegister";
 import TutorLogin from "../src/Pages/TUTOR/TutorLogin";
 import TutorHome from "../src/Pages/TUTOR/TutorHome";
+import TutorProfile from "../src/Pages/TUTOR/TutorProfile";
+import TutorForgotPassword from "../src/Pages/TUTOR/TutorForgotPassword";
+import TutorResetPassword from "../src/Pages/TUTOR/TutorResetPassword";
 
 import { TutorProtectedRoute, TutorPublicRoute } from "../src/utils/TutorRouteProtection";
 
@@ -12,13 +15,15 @@ const TutorRoutes = () => {
         <Routes>
            {/* Public Routes - Only for unauthenticated tutors */}
            <Route element={<TutorPublicRoute />}>
+                <Route path="forgot-password" element={<TutorForgotPassword />} />
+                <Route path="reset-password/:token" element={<TutorResetPassword />} />
                 <Route path="register" element={<TutorRegister />} />
                 <Route path="login" element={<TutorLogin />} />
            </Route>
            {/* Protected Routes - Only for authenticated tutors */}
            <Route element={<TutorProtectedRoute />}>
                 <Route path="home" element={<TutorHome />} />
-                
+                <Route path="profile" element={<TutorProfile />} />
            </Route>
            <Route path="*"  element={<NotFoundPage/>}/>
         </Routes>

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { axiosPublic } from "../../api/axios";
 import OtpModal from "../../ui/OTP";
 import DotDotDotSpinner from "../../ui/Spinner/DotDotDotSpinner";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function TutorRegister() {
   const navigate = useNavigate();
@@ -93,6 +94,34 @@ export default function TutorRegister() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setIsSubmitting(true);
+      const response = await axiosPublic.post("/api/tutors/google-auth", {
+        credential: credentialResponse.credential
+      });
+
+      localStorage.setItem("tutorAuthToken", response.data.accessToken);
+      localStorage.setItem("tutorInfo", JSON.stringify({ 
+        name: response.data.name, 
+        email: response.data.email,
+        profileImage: response.data.profileImage 
+      }));
+
+      toast.success(response.data.message || "Google registration successful!");
+      navigate("/tutor/home");
+    } catch (err) {
+      console.error('Google registration error:', err);
+      toast.error(err.response?.data?.message || "Google registration failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google registration failed. Please try again.");
   };
 
   return (
@@ -310,6 +339,29 @@ export default function TutorRegister() {
               >
                 {isSubmitting ? <DotDotDotSpinner /> : "Register"}
               </button>
+            </div>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-sky-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-sky-50 text-sky-600">Or register with</span>
+              </div>
+            </div>
+
+            {/* Google Registration Button */}
+            <div className="mt-6">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                theme="outline"
+                size="large"
+                width="100%"
+                text="signup_with"
+                shape="rectangular"
+              />
             </div>
           </form>
         </div>

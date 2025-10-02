@@ -74,8 +74,9 @@ export default function Login() {
       // Set the user and accessToken in the global auth state
       setAuth({ user, accessToken });
 
-      // Persist the token in localStorage
+      // Persist the token and user info in localStorage
       localStorage.setItem("authToken", accessToken);
+      localStorage.setItem("userInfo", JSON.stringify(user));
 
       // Clear form fields
       setEmail("");
@@ -93,6 +94,36 @@ export default function Login() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setIsSubmitting(true);
+      const response = await axiosPublic.post("/api/users/google-auth", {
+        credential: credentialResponse.credential
+      });
+
+      const { accessToken, ...user } = response.data;
+
+      // Set the user and accessToken in the global auth state
+      setAuth({ user, accessToken });
+
+      // Persist the token and user info in localStorage
+      localStorage.setItem("authToken", accessToken);
+      localStorage.setItem("userInfo", JSON.stringify(user));
+
+      toast.success(response.data.message || "Google login successful!");
+      navigate(from, { replace: true });
+    } catch (err) {
+      console.error('Google login error:', err);
+      toast.error(err.response?.data?.message || "Google login failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    toast.error("Google login failed. Please try again.");
   };
 
   return (
@@ -215,13 +246,9 @@ export default function Login() {
                 />
                 <span className="text-sm text-gray-600">Remember me</span>
               </label>
-              <a
-                href="#"
-                className="text-sm text-gray-600 hover:text-sky-500"
-                onClick={(e) => e.preventDefault()}
-              >
+              <Link to="/user/forgot-password" className="text-sm text-gray-600 hover:text-sky-500">
                 Forgot Password?
-              </a>
+              </Link>
             </div>
 
             {/* Submit Button */}
@@ -245,13 +272,15 @@ export default function Login() {
 
             {/* Google Login Button */}
             <div className="mt-6">
-              {/* <GoogleLogin
-                onSuccess={() => alert("Google Login Success")}
-                onError={() => alert("Google Login Failed")}
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
                 theme="outline"
                 size="large"
                 width="100%"
-              /> */}
+                text="signin_with"
+                shape="rectangular"
+              />
             </div>
 
             {/* Sign Up Link */}
