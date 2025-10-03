@@ -5,6 +5,7 @@ import HomePage from "../src/Pages/USER/Home";
 import NotFoundPage from "../src/ui/NotFound";
 import { UserProtectedRoute, UserPublicRoute } from "../src/utils/UserRouteProtection";
 import ProfilePage from "../src/Pages/USER/UserProfile";
+import CoursesPage from "../src/Pages/USER/Courses";
 import UserForgotPassword from "../src/Pages/USER/UserForgotPassword";
 import UserResetPassword from "../src/Pages/USER/UserResetPassword";
 
@@ -23,6 +24,7 @@ const UserRoutes = () => {
       <Route element={<UserProtectedRoute />}>
         <Route path="home" element={<HomePage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="courses" element={<CoursesPage />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

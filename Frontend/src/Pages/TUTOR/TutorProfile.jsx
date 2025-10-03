@@ -4,6 +4,8 @@ import { Edit, Save, X, Camera, Check } from 'lucide-react';
 import { FaPlus, FaUser, FaBook, FaChartBar, FaComments, FaSignOutAlt } from "react-icons/fa";
 import Button from "../../ui/Button";
 import Card from "../../ui/Card";
+import Header from "./Common/Header";
+import Footer from "./Common/Footer";
 
 export default function TutorProfile() {
   const navigate = useNavigate();
@@ -155,12 +157,7 @@ export default function TutorProfile() {
 
   return (
     <div className="min-h-screen bg-[#f2fbf6] w-full flex flex-col">
-      {/* Header - keeping it simple like TutorHome */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-sky-500">Scholaro Tutor - Profile</h1>
-        </div>
-      </div>
+      <Header />
 
       {/* Main container */}
       <div className="flex flex-1 w-full">
@@ -198,7 +195,10 @@ export default function TutorProfile() {
             <li className="flex items-center px-8 py-2 bg-sky-500 text-white rounded-l-full font-semibold mb-1">
               <FaUser className="mr-3" /> Profile
             </li>
-            <li className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer mb-1">
+            <li 
+              onClick={() => navigate('/tutor/courses')}
+              className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer mb-1"
+            >
               <FaBook className="mr-3" /> Courses
             </li>
             <li className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer mb-1">
@@ -317,6 +317,8 @@ export default function TutorProfile() {
           </div>
         </main>
       </div>
+      
+      <Footer />
     </div>
   );
 }

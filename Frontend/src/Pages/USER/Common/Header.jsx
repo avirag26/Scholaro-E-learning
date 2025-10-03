@@ -28,12 +28,12 @@ export default function Header({ user, theme, onToggle, onMenuClick }) {
             <span className="sr-only">Toggle sidebar</span>
           </Button>
 
-          <a
+          <Link
             className="flex items-center gap-2 font-bold text-xl md:text-2xl text-sky-500"
-            href="#"
+            to="/user/home"
           >
             Scholaro
-          </a>
+          </Link>
         </div>
 
         {/* Desktop Search Box */}
@@ -69,7 +69,7 @@ export default function Header({ user, theme, onToggle, onMenuClick }) {
             Contact
           </Link>
           <Link
-            to="/user/fullcourse"
+            to="/user/courses"
             className="text-sm font-medium hover:text-sky-500 text-gray-900"
           >
             Courses
@@ -122,7 +122,7 @@ export default function Header({ user, theme, onToggle, onMenuClick }) {
             src={user?.profileImage || avatar}
             alt="Profile"
             className="h-8 w-8 rounded-full object-cover"
-            onClick={() => navigate("/user/profiles")}
+            onClick={() => navigate("/user/profile")}
           />
           <ThemeToggle theme={theme} onToggle={onToggle} />
           <div className="relative lg:hidden">

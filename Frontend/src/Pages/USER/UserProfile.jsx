@@ -225,7 +225,10 @@ export default function UserProfile() {
                 <User className="w-4 h-4 mr-3" />
                 Profile
               </button>
-              <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center">
+              <button 
+                onClick={() => navigate('/user/courses')}
+                className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center"
+              >
                 <BookOpen className="w-4 h-4 mr-3" />
                 My Courses
               </button>

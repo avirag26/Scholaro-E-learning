@@ -103,7 +103,6 @@ export default function TutorDashboard() {
 
     <div className="min-h-screen bg-[#f2fbf6] w-full flex flex-col">
       <Header />
-      {/* Header */}
 
       {/* Main container */}
       <div className="flex flex-1 w-full">
@@ -124,7 +123,10 @@ export default function TutorDashboard() {
             >
               <FaUser className="mr-3" /> Profile
             </li>
-            <li className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer mb-1">
+            <li 
+              onClick={() => navigate('/tutor/courses')}
+              className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer mb-1"
+            >
               <FaBook className="mr-3" /> Courses
             </li>
             <li className="flex items-center px-8 py-2 text-sky-500 hover:bg-sky-50 rounded-l-full cursor-pointer mb-1">

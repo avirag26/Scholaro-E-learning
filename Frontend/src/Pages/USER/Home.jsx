@@ -8,6 +8,7 @@ import Testimonials from "../../ui/Testimonials";
 import TeamSection from "../../ui/TeamSection";
 import BannerImg from "../../assets/banner.png";
 import { MdFavoriteBorder } from "react-icons/md";
+import Header from "./Common/Header";
 
 export default function UserHomePage() {
   console.log('UserHomePage component rendering');
@@ -95,78 +96,12 @@ export default function UserHomePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-teal-600">Scholaro</h1>
-            </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <Link to="/user/home" className="text-teal-600 font-medium">Dashboard</Link>
-              <Link to="/user/courses" className="text-gray-700 hover:text-teal-600 transition-colors">My Courses</Link>
-              <Link to="/user/browse" className="text-gray-700 hover:text-teal-600 transition-colors">Browse</Link>
-              <Link to="/user/certificates" className="text-gray-700 hover:text-teal-600 transition-colors">Certificates</Link>
-            </nav>
-
-            {/* Search Bar */}
-            <div className="hidden md:flex flex-1 max-w-md mx-8">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  placeholder="Search courses..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                />
-              </div>
-            </div>
-
-            {/* User Menu */}
-            <div className="hidden md:flex items-center space-x-4">
-              <button className="p-2 text-gray-600 hover:text-teal-500">
-                <Bell className="w-5 h-5" />
-              </button>
-              <div className="relative">
-                <button
-                  onClick={() => navigate('/user/profile')}
-                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
-                >
-                  <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {userInfo?.name?.charAt(0) || 'U'}
-                    </span>
-                  </div>
-                  <span className="text-gray-700">{userInfo?.name || 'User'}</span>
-                </button>
-              </div>
-
-            </div>
-
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="md:hidden py-4 border-t">
-              <div className="flex flex-col space-y-4">
-                <Link to="/user/home" className="text-teal-600 font-medium">Dashboard</Link>
-                <Link to="/user/courses" className="text-gray-700">My Courses</Link>
-                <Link to="/user/browse" className="text-gray-700">Browse</Link>
-                <Link to="/user/certificates" className="text-gray-700">Certificates</Link>
-
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
+     <Header
+                    //  user={user}
+                    //  theme={theme}
+                    //  onToggle={handleThemeToggle}
+                    //  onMenuClick={handleMenuClick}
+                 />
 
       {/* Welcome Section */}
       <section className="bg-gradient-to-br from-teal-50 to-blue-50 py-12">
@@ -425,9 +360,9 @@ export default function UserHomePage() {
             <div>
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Help Center</a></li>
-                <li><a href="#" className="hover:text-white">Contact Support</a></li>
-                <li><a href="#" className="hover:text-white">FAQ</a></li>
+                <li><Link to="/user/help" className="hover:text-white">Help Center</Link></li>
+                <li><Link to="/user/contact" className="hover:text-white">Contact Support</Link></li>
+                <li><Link to="/user/faq" className="hover:text-white">FAQ</Link></li>
               </ul>
             </div>
 

@@ -17,19 +17,22 @@ const protectTutor = async (req, res, next) => {
       req.tutor = await Tutor.findById(decoded.id).select('-password');
 
       if (!req.tutor) {
-        res.status(401);
-        throw new Error('Not authorized, tutor not found');
+        return res.status(401).json({ message: 'Not authorized, tutor not found' });
       }
 
       next();
     } catch (error) {
-      console.error(error);
-      res.status(401).json({ message: 'Not authorized, token failed' });
+      console.error('Tutor auth error:', error.name, error.message);
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({ 
+          message: 'Token expired, please login again',
+          expired: true
+        });
+      }
+      return res.status(401).json({ message: 'Not authorized, token failed' });
     }
-  }
-
-  if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+  } else {
+    return res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
 

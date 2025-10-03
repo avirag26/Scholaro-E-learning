@@ -12,6 +12,7 @@ dotenv.config();
 import userRoutes from './Routes/userRoute.js';
 import tutorRoutes from './Routes/tutorRoute.js';
 import adminRoutes from './Routes/adminRoute.js';
+import courseRoutes from './Routes/courseRoute.js';
 
 const port = process.env.PORT || 5000;
 connectDB();
@@ -35,10 +36,14 @@ app.get('/', (req, res) => {
   res.send('API is running....');
 });
 
+// Serve static files
+app.use('/uploads', express.static('uploads'));
+
 // Use routes
 app.use('/api/users', userRoutes);
 app.use('/api/tutors', tutorRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/courses', courseRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

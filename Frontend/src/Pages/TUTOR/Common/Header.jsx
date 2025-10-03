@@ -1,40 +1,75 @@
-import React from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, Bell, User } from "lucide-react";
 
 export default function Header() {
+  const navigate = useNavigate();
+  const [tutorInfo, setTutorInfo] = useState(null);
+
+  useEffect(() => {
+    const storedTutorInfo = localStorage.getItem('tutorInfo');
+    if (storedTutorInfo) {
+      try {
+        setTutorInfo(JSON.parse(storedTutorInfo));
+      } catch (error) {
+        console.error("Failed to parse tutorInfo from localStorage", error);
+      }
+    }
+  }, []);
+
   return (
-    <header className="w-full bg-white border-b flex items-center px-4 py-2" style={{ minHeight: 48 }}>
-      {/* Logo */}
-      <span className="text-xl font-bold text-[#21adae]">Scholaro</span>
-      {/* Search Bar */}
-      <div className="flex-1 flex justify-center">
-        <div className="flex items-center border border-[#21adae] rounded-md w-full max-w-2xl h-9 ml-4">
-          <svg width="20" height="20" fill="none" className="mx-2 text-[#21adae]" stroke="currentColor" strokeWidth={2}>
-            <circle cx="9" cy="9" r="7" />
-            <line x1="15" y1="15" x2="19" y2="19" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search"
-            className="w-full h-full px-2 text-sm bg-transparent focus:outline-none text-[#21adae] placeholder-[#21adae]"
-            style={{ minWidth: 200 }}
-          />
+    <header className="w-full bg-white border-b border-gray-200 shadow-sm">
+      <div className="flex items-center justify-between px-6 py-3">
+        {/* Logo */}
+        <div className="flex items-center">
+          <span className="text-2xl font-bold text-sky-500">Scholaro</span>
+          <span className="ml-2 text-sm text-gray-500 font-medium">Tutor</span>
         </div>
-      </div>
-      {/* Spacer */}
-      <div className="flex items-center gap-7 ml-4">
-        {/* Notification Icon */}
-        <button className="focus:outline-none">
-          <svg width="24" height="24" fill="none" className="text-[#21adae]" stroke="currentColor" strokeWidth={2}>
-            <path d="M12 22s1-1 1-2h-2c0 1 1 2 1 2Z" />
-            <path d="M6 8v5c0 1.886-.356 3.813-2 5h16c-1.644-1.187-2-3.114-2-5V8a6 6 0 1 0-12 0Z" />
-          </svg>
-        </button>
-        {/* Profile Avatar */}
-        <img
-          src="https://randomuser.me/api/portraits/men/32.jpg" // replace with your profile img URL
-          alt="profile"
-          className="rounded-full w-9 h-9 object-cover border"
-        />
+
+        {/* Search Bar */}
+        <div className="flex-1 max-w-2xl mx-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search courses, students..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 bg-gray-50"
+            />
+          </div>
+        </div>
+
+        {/* Right Section */}
+        <div className="flex items-center space-x-4">
+          {/* Notification Bell */}
+          <button className="p-2 text-gray-600 hover:text-sky-500 hover:bg-sky-50 rounded-full transition-colors">
+            <Bell className="w-5 h-5" />
+          </button>
+
+          {/* Profile Section */}
+          <div className="flex items-center space-x-3">
+            <button 
+              onClick={() => navigate('/tutor/profile')}
+              className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              {tutorInfo?.profileImage ? (
+                <img
+                  src={tutorInfo.profileImage}
+                  alt="Tutor Profile"
+                  className="w-8 h-8 rounded-full object-cover border-2 border-sky-200"
+                />
+              ) : (
+                <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-medium">
+                    {tutorInfo?.name?.charAt(0) || 'T'}
+                  </span>
+                </div>
+              )}
+              <span className="text-gray-700 font-medium hidden sm:block">
+                {tutorInfo?.name || 'Tutor'}
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
   );
