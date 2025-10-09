@@ -6,6 +6,8 @@ import AdminDashboard from "../src/Pages/ADMIN/AdminDashboard";
 import AdminProfile from "../src/Pages/ADMIN/AdminProfile";
 import AdminForgotPassword from "../src/Pages/ADMIN/AdminForgotPassword";
 import AdminResetPassword from "../src/Pages/ADMIN/AdminResetPassword";
+import Students from "../src/Pages/ADMIN/Students";
+import Tutors from "../src/Pages/ADMIN/Tutors";
 import AdminProtectedRoute from "../src/utils/AdminProtectedRoute";
 
 const AdminRoutes = () => {
@@ -26,6 +28,16 @@ const AdminRoutes = () => {
            <Route path="profile" element={
              <AdminProtectedRoute>
                <AdminProfile />
+             </AdminProtectedRoute>
+           } />
+           <Route path="students" element={
+             <AdminProtectedRoute>
+               <Students />
+             </AdminProtectedRoute>
+           } />
+           <Route path="tutors" element={
+             <AdminProtectedRoute>
+               <Tutors />
              </AdminProtectedRoute>
            } />
            

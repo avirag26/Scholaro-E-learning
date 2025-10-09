@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import User from '../Model/userModel.js';
+import Admin from '../Model/AdminModel.js';
 
-const protectUser = async (req, res, next) => {
+const protectAdmin = async (req, res, next) => {
   let token;
 
   // Read the JWT from the 'Authorization' header
@@ -13,21 +13,16 @@ const protectUser = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user from the token (select everything except the password)
-      req.user = await User.findById(decoded.id).select('-password');
+      // Get admin from the token (select everything except the password)
+      req.admin = await Admin.findById(decoded.id).select('-password');
 
-      if (!req.user) {
-        return res.status(401).json({ message: 'Not authorized, user not found' });
-      }
-
-      // Check if user is blocked
-      if (req.user.is_blocked) {
-        return res.status(403).json({ message: 'Account has been blocked. Please contact support.' });
+      if (!req.admin) {
+        return res.status(401).json({ message: 'Not authorized, admin not found' });
       }
 
       next();
     } catch (error) {
-      console.error('User auth error:', error.name, error.message);
+      console.error('Admin auth error:', error.name, error.message);
       if (error.name === 'TokenExpiredError') {
         return res.status(401).json({ 
           message: 'Token expired, please login again',
@@ -41,4 +36,4 @@ const protectUser = async (req, res, next) => {
   }
 };
 
-export { protectUser };
+export { protectAdmin };

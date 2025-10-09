@@ -32,12 +32,12 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: function() { return !this.googleId; }, 
-      sparse: true 
+      required: function () { return !this.googleId; },
+      sparse: true
     },
     password: {
       type: String,
-      required: function() { return !this.googleId; }, 
+      required: function () { return !this.googleId; },
     },
     user_id: {
       type: String,
@@ -82,6 +82,10 @@ const userSchema = new mongoose.Schema(
       default: null
     },
     is_verified: {
+      type: Boolean,
+      default: false
+    },
+    is_blocked: {
       type: Boolean,
       default: false
     },

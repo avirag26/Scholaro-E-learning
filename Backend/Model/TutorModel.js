@@ -81,6 +81,10 @@ const tutorSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    is_blocked: {
+      type: Boolean,
+      default: false,
+    },
     refreshToken: {
       type: String,
       default: null

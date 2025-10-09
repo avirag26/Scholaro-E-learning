@@ -366,4 +366,120 @@ const googleAuth = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, verifyOtp, resendOtp, forgotPassword, resetPassword, googleAuth };
+/**
+ * @desc    Get user profile
+ * @route   GET /api/users/profile
+ * @access  Private (User only)
+ */
+const getUserProfile = async (req, res) => {
+  try {
+    // req.user is set by the protectUser middleware
+    const user = await User.findById(req.user._id).select('-password -otp -otpExpiry -refreshToken');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({
+      message: 'Profile retrieved successfully',
+      user: {
+        _id: user._id,
+        full_name: user.full_name,
+        email: user.email,
+        phone: user.phone,
+        profileImage: user.profileImage,
+        is_verified: user.is_verified,
+        is_blocked: user.is_blocked,
+        wallet: user.wallet,
+        courses: user.courses,
+        createdAt: user.createdAt,
+        lastActive: user.lastActive
+      }
+    });
+  } catch (error) {
+    console.error('Error getting user profile:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+/**
+ * @desc    Update user profile
+ * @route   PUT /api/users/profile
+ * @access  Private (User only)
+ */
+const updateUserProfile = async (req, res) => {
+  try {
+    const { full_name, phone, profileImage } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if user is blocked
+    if (user.is_blocked) {
+      return res.status(403).json({ message: 'Account has been blocked. Cannot update profile.' });
+    }
+
+    // Update fields if provided
+    if (full_name) user.full_name = full_name;
+    if (phone) user.phone = phone;
+    if (profileImage) user.profileImage = profileImage;
+    
+    user.lastActive = new Date();
+    
+    await user.save();
+
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      user: {
+        _id: user._id,
+        full_name: user.full_name,
+        email: user.email,
+        phone: user.phone,
+        profileImage: user.profileImage,
+        is_verified: user.is_verified,
+        wallet: user.wallet
+      }
+    });
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+/**
+ * @desc    Logout user
+ * @route   POST /api/users/logout
+ * @access  Private (User only)
+ */
+const logoutUser = async (req, res) => {
+  try {
+    // Clear refresh token from database
+    await User.findByIdAndUpdate(req.user._id, { 
+      refreshToken: null,
+      lastActive: new Date()
+    });
+
+    // Clear the refresh token cookie
+    res.clearCookie('jwt_user');
+    res.status(200).json({ message: 'User logged out successfully' });
+  } catch (error) {
+    console.error('User Logout Error:', error);
+    res.status(500).json({ message: 'Server error during logout.' });
+  }
+};
+
+export { 
+  registerUser, 
+  loginUser, 
+  verifyOtp, 
+  resendOtp, 
+  forgotPassword, 
+  resetPassword, 
+  googleAuth,
+  getUserProfile,
+  updateUserProfile,
+  logoutUser
+};

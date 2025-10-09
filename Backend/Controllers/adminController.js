@@ -1,4 +1,7 @@
 import Admin from '../Model/AdminModel.js';
+import User from '../Model/userModel.js';
+import Tutor from '../Model/TutorModel.js';
+import Course from '../Model/CourseModel.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/generateToken.js';
 import { sendPasswordResetEmail } from '../utils/emailService.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -202,10 +205,341 @@ const logoutAdmin = async (req, res) => {
   }
 };
 
-export { 
-  registerAdmin, 
-  loginAdmin, 
-  forgotPassword, 
-  resetPassword, 
-  logoutAdmin 
+
+
+/**
+ * @desc    Get all users for admin management
+ * @route   GET /api/admin/users
+ * @access  Private (Admin only)
+ */
+const getAllUsers = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search = '', status = 'all' } = req.query;
+    
+    let query = {};
+    
+    // Search filter
+    if (search) {
+      query.$or = [
+        { full_name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Status filter
+    if (status !== 'all') {
+      if (status === 'active') {
+        query.is_verified = true;
+        query.is_blocked = false;
+      } else if (status === 'blocked') {
+        query.is_blocked = true;
+      } else if (status === 'unverified') {
+        query.is_verified = false;
+      }
+    }
+
+    const users = await User.find(query)
+      .select('-password -otp -otpExpiry -refreshToken')
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    // Ensure is_blocked field exists for all users (for backward compatibility)
+    const usersWithDefaults = users.map(user => ({
+      ...user.toObject(),
+      is_blocked: user.is_blocked !== undefined ? user.is_blocked : false
+    }));
+
+    const total = await User.countDocuments(query);
+
+    res.status(200).json({
+      users: usersWithDefaults,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      total
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Server error fetching users' });
+  }
+};
+
+/**
+ * @desc    Get all tutors for admin management
+ * @route   GET /api/admin/tutors
+ * @access  Private (Admin only)
+ */
+const getAllTutors = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search = '', status = 'all' } = req.query;
+    
+    let query = {};
+    
+    // Search filter
+    if (search) {
+      query.$or = [
+        { full_name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Status filter
+    if (status !== 'all') {
+      if (status === 'active') {
+        query.is_verified = true;
+        query.is_blocked = false;
+      } else if (status === 'blocked') {
+        query.is_blocked = true;
+      } else if (status === 'unverified') {
+        query.is_verified = false;
+      }
+    }
+
+    const tutors = await Tutor.find(query)
+      .select('-password -otp -otpExpiry -refreshToken')
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    // Get course count for each tutor and ensure is_blocked field exists
+    const tutorsWithStats = await Promise.all(
+      tutors.map(async (tutor) => {
+        const courseCount = await Course.countDocuments({ instructor: tutor._id });
+        return {
+          ...tutor.toObject(),
+          courseCount,
+          is_blocked: tutor.is_blocked !== undefined ? tutor.is_blocked : false
+        };
+      })
+    );
+
+    const total = await Tutor.countDocuments(query);
+
+    res.status(200).json({
+      tutors: tutorsWithStats,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      total
+    });
+  } catch (error) {
+    console.error('Error fetching tutors:', error);
+    res.status(500).json({ message: 'Server error fetching tutors' });
+  }
+};
+
+/**
+ * @desc    Block/Unblock user
+ * @route   PATCH /api/admin/users/:id/toggle-block
+ * @access  Private (Admin only)
+ */
+const toggleUserBlock = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('=== TOGGLE USER BLOCK DEBUG ===');
+    console.log('User ID:', id);
+    
+    const user = await User.findById(id);
+    if (!user) {
+      console.log('User not found with ID:', id);
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log('User before toggle:', {
+      _id: user._id,
+      full_name: user.full_name,
+      email: user.email,
+      is_blocked: user.is_blocked
+    });
+
+    user.is_blocked = !user.is_blocked;
+    console.log('User after toggle (before save):', {
+      _id: user._id,
+      is_blocked: user.is_blocked
+    });
+
+    await user.save();
+    console.log('User saved successfully');
+
+    const responseData = {
+      message: `User ${user.is_blocked ? 'blocked' : 'unblocked'} successfully`,
+      user: {
+        _id: user._id,
+        full_name: user.full_name,
+        email: user.email,
+        is_blocked: user.is_blocked
+      }
+    };
+
+    console.log('Sending response:', responseData);
+    res.status(200).json(responseData);
+  } catch (error) {
+    console.error('Error toggling user block:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+/**
+ * @desc    Block/Unblock tutor
+ * @route   PATCH /api/admin/tutors/:id/toggle-block
+ * @access  Private (Admin only)
+ */
+const toggleTutorBlock = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const tutor = await Tutor.findById(id);
+    if (!tutor) {
+      return res.status(404).json({ message: 'Tutor not found' });
+    }
+
+    tutor.is_blocked = !tutor.is_blocked;
+    await tutor.save();
+
+    res.status(200).json({
+      message: `Tutor ${tutor.is_blocked ? 'blocked' : 'unblocked'} successfully`,
+      tutor: {
+        _id: tutor._id,
+        full_name: tutor.full_name,
+        email: tutor.email,
+        is_blocked: tutor.is_blocked
+      }
+    });
+  } catch (error) {
+    console.error('Error toggling tutor block:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+/**
+ * @desc    Delete user
+ * @route   DELETE /api/admin/users/:id
+ * @access  Private (Admin only)
+ */
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+/**
+ * @desc    Delete tutor
+ * @route   DELETE /api/admin/tutors/:id
+ * @access  Private (Admin only)
+ */
+const deleteTutor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const tutor = await Tutor.findById(id);
+    if (!tutor) {
+      return res.status(404).json({ message: 'Tutor not found' });
+    }
+
+    // Also delete all courses by this tutor
+    await Course.deleteMany({ instructor: id });
+
+    await Tutor.findByIdAndDelete(id);
+
+    res.status(200).json({
+      message: 'Tutor and associated courses deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting tutor:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+/**
+ * @desc    Get admin dashboard stats
+ * @route   GET /api/admin/stats
+ * @access  Private (Admin only)
+ */
+const getDashboardStats = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalTutors = await Tutor.countDocuments();
+    const totalCourses = await Course.countDocuments();
+    const blockedUsers = await User.countDocuments({ is_blocked: true });
+    const blockedTutors = await Tutor.countDocuments({ is_blocked: true });
+    const unverifiedUsers = await User.countDocuments({ is_verified: false });
+    const unverifiedTutors = await Tutor.countDocuments({ is_verified: false });
+
+    res.status(200).json({
+      totalUsers,
+      totalTutors,
+      totalCourses,
+      blockedUsers,
+      blockedTutors,
+      unverifiedUsers,
+      unverifiedTutors,
+      activeUsers: totalUsers - blockedUsers,
+      activeTutors: totalTutors - blockedTutors
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Migration function to add is_blocked field to existing users
+const migrateUserBlocks = async (req, res) => {
+  try {
+    // Update all users without is_blocked field
+    const userResult = await User.updateMany(
+      { is_blocked: { $exists: false } },
+      { $set: { is_blocked: false } }
+    );
+
+    // Update all tutors without is_blocked field
+    const tutorResult = await Tutor.updateMany(
+      { is_blocked: { $exists: false } },
+      { $set: { is_blocked: false } }
+    );
+
+    // Update all admins without is_blocked field
+    const adminResult = await Admin.updateMany(
+      { is_blocked: { $exists: false } },
+      { $set: { is_blocked: false } }
+    );
+
+    res.status(200).json({
+      message: 'Migration completed successfully',
+      usersUpdated: userResult.modifiedCount,
+      tutorsUpdated: tutorResult.modifiedCount,
+      adminsUpdated: adminResult.modifiedCount
+    });
+  } catch (error) {
+    console.error('Migration error:', error);
+    res.status(500).json({ message: 'Migration failed', error: error.message });
+  }
+};
+
+export {
+  registerAdmin,
+  loginAdmin,
+  forgotPassword,
+  resetPassword,
+  logoutAdmin,
+  getAllUsers,
+  getAllTutors,
+  toggleUserBlock,
+  toggleTutorBlock,
+  deleteUser,
+  deleteTutor,
+  getDashboardStats,
+  migrateUserBlocks
 };

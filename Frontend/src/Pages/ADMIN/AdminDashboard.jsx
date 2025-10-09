@@ -166,14 +166,22 @@ export default function AdminDashboard() {
                             <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
                                 Category
                             </button>
-                            <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                            <button 
+                                onClick={() => navigate('/admin/students')}
+                                className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center"
+                            >
+                                <Users className="w-5 h-5 mr-3" />
                                 Students
+                            </button>
+                            <button 
+                                onClick={() => navigate('/admin/tutors')}
+                                className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg flex items-center"
+                            >
+                                <GraduationCap className="w-5 h-5 mr-3" />
+                                Tutors
                             </button>
                             <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
                                 Orders
-                            </button>
-                            <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
-                                Tutors
                             </button>
                             <button className="w-full text-left px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
                                 Coupon
