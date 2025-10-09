@@ -37,6 +37,10 @@ const adminSchema = new mongoose.Schema(
       type: Boolean,
       default: true
     },
+    is_blocked: {
+      type: Boolean,
+      default: false
+    },
     refreshToken: {
       type: String,
       default: null

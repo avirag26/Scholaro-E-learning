@@ -6,7 +6,10 @@ import {
     addLesson,
     getListedCourses,
     deleteCourse,
-    upload
+    upload,
+    getUserEnrolledCourses,
+    enrollInCourse,
+    getCourseProgress
 } from '../Controllers/courseControllerHybrid.js';
 import { protectTutor } from '../Middleware/tutorAuthMiddleware.js';
 
@@ -39,6 +42,9 @@ router.get('/test-auth', protectTutor, (req, res) => {
 router.get('/listed', getListedCourses);
 
 // User routes (protected)
-// router.post('/enroll/:courseId', userAuth, enrollInCourse); // We'll implement this later
+import { protectUser } from '../Middleware/authMiddleware.js';
+router.get('/enrolled', protectUser, getUserEnrolledCourses);
+router.post('/enroll/:courseId', protectUser, enrollInCourse);
+router.get('/progress/:courseId', protectUser, getCourseProgress);
 
 export default router;

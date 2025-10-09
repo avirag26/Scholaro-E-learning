@@ -11,3 +11,4 @@ export const generateRefreshToken = (id) => {
     expiresIn: '7d', // A long-lived refresh token
   });
 };
+

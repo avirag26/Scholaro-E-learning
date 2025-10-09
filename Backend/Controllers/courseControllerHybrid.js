@@ -358,6 +358,131 @@ const deleteCourse = async (req, res) => {
     }
 };
 
+// Get user's enrolled courses
+const getUserEnrolledCourses = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        
+        // Find user with populated courses
+        const user = await User.findById(userId)
+            .populate({
+                path: 'courses.course',
+                select: 'title description imageUrl instructorName regularPrice finalPrice rating totalLessons'
+            });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const enrolledCourses = user.courses.map(enrollment => ({
+            courseId: enrollment.course._id,
+            title: enrollment.course.title,
+            description: enrollment.course.description,
+            imageUrl: enrollment.course.imageUrl,
+            instructorName: enrollment.course.instructorName,
+            price: enrollment.course.finalPrice,
+            rating: enrollment.course.rating,
+            totalLessons: enrollment.course.totalLessons,
+            enrollmentDate: enrollment.enrollmentDate,
+            progress: enrollment.progress,
+            completionStatus: enrollment.completionStatus
+        }));
+
+        res.status(200).json({
+            message: 'Enrolled courses retrieved successfully',
+            courses: enrolledCourses
+        });
+    } catch (error) {
+        console.error('Error getting enrolled courses:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// Enroll user in a course
+const enrollInCourse = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const userId = req.user._id;
+
+        // Check if course exists and is listed
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({ message: 'Course not found' });
+        }
+
+        if (!course.isListed) {
+            return res.status(400).json({ message: 'Course is not available for enrollment' });
+        }
+
+        // Check if user is already enrolled
+        const user = await User.findById(userId);
+        const alreadyEnrolled = user.courses.some(enrollment => 
+            enrollment.course.toString() === courseId
+        );
+
+        if (alreadyEnrolled) {
+            return res.status(400).json({ message: 'Already enrolled in this course' });
+        }
+
+        // Add course to user's enrolled courses
+        user.courses.push({
+            course: courseId,
+            enrollmentDate: new Date(),
+            progress: 0,
+            completionStatus: false
+        });
+
+        await user.save();
+
+        // Update course enrolled students count
+        course.enrolledStudents.push(userId);
+        await course.save();
+
+        res.status(200).json({
+            message: 'Successfully enrolled in course',
+            courseId: courseId,
+            enrollmentDate: new Date()
+        });
+    } catch (error) {
+        console.error('Error enrolling in course:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+// Get course progress for a user
+const getCourseProgress = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const userId = req.user._id;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const enrollment = user.courses.find(course => 
+            course.course.toString() === courseId
+        );
+
+        if (!enrollment) {
+            return res.status(404).json({ message: 'Not enrolled in this course' });
+        }
+
+        res.status(200).json({
+            message: 'Course progress retrieved successfully',
+            progress: {
+                courseId: courseId,
+                progress: enrollment.progress,
+                completionStatus: enrollment.completionStatus,
+                enrollmentDate: enrollment.enrollmentDate
+            }
+        });
+    } catch (error) {
+        console.error('Error getting course progress:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
 export {
     createCourse,
     getTutorCourses,
@@ -365,5 +490,8 @@ export {
     addLesson,
     getListedCourses,
     deleteCourse,
-    upload
+    upload,
+    getUserEnrolledCourses,
+    enrollInCourse,
+    getCourseProgress
 };
