@@ -7,7 +7,9 @@ import { notFound, errorHandler } from './Middleware/errorMiddleware.js';
 
 // This must be the very first thing to run
 dotenv.config();
-
+console.log("heyyyy")
+console.log("vbsbvhsbv")
+console.log("jdbfbhlebve")
 // Import routes
 import userRoutes from './Routes/userRoute.js';
 import tutorRoutes from './Routes/tutorRoute.js';
